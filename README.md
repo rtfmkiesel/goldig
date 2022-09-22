@@ -2,7 +2,7 @@
     <img src="https://gitlab.com/lu-ka/goldig/-/raw/main/goldig.png">
 </div>
 
-# GOLDIG
+# goldig
 Execute commands (sneaky) on Windows via DNS TXT records
 
 This small utility will create a DNS server and serve your malicious TXT record. Just copy & paste the command from the console output into your Windows shell. 
@@ -33,7 +33,7 @@ cd goldig
 go build
 
 # or via makefile
-make linuxgit re
+make linux
 make windows
 make all
 ```
