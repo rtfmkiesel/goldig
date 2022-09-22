@@ -2,19 +2,17 @@
     <img src="https://gitlab.com/lu-ka/goldig/-/raw/main/goldig.png">
 </div>
 
-# goldig
+# GOLDIG
 Execute commands (sneaky) on Windows via DNS TXT records
 
 This small utility will create a DNS server and serve your malicious TXT record. Just copy & paste the command from the console output into your Windows shell. 
 
-<div align="center">
-    <img src="https://gitlab.com/lu-ka/goldig/-/raw/main/run.png">
-</div>
+<img src="https://gitlab.com/lu-ka/goldig/-/raw/main/run.png">
 
 ## why
 This was made for all the people that don't want to buy a domain to test this attack or just want to run this internally.
 
-But be aware, when accessing this externally, that larger corporations will often block external DNS servers or external DNS traffic altogether. In such cases you have to buy a domain and setup a public TXT record.
+But be aware when accessing this externally, that larger corporations will often block external DNS servers or external DNS traffic altogether. In such cases you have to buy a domain and setup a public TXT record.
 
 ## Kudos
 + [Alh4zr3d](https://twitter.com/Alh4zr3d) for the [tweet](https://twitter.com/Alh4zr3d/status/1566489367232651264) that started it this
