@@ -19,7 +19,7 @@ func banner() {
 ██║   ██║██║   ██║██║     ██║  ██║██║██║   ██║
 ╚██████╔╝╚██████╔╝███████╗██████╔╝██║╚██████╔╝
  ╚═════╝  ╚═════╝ ╚══════╝╚═════╝ ╚═╝ ╚═════╝ `)
-	fmt.Print("                   by \033[36mhttps://gitlab.com/lu-ka\033[0m\n\n")
+	fmt.Print("                   by https://gitlab.com/lu-ka\n\n")
 }
 
 func usage() {
@@ -38,7 +38,7 @@ type DNSHandler struct {
 
 func (handler *DNSHandler) ServeDNS(rw fastdns.ResponseWriter, req *fastdns.Message) {
 
-	if fmt.Sprint(req.Question.Type) != "PTR" { // ingore PTR
+	if fmt.Sprint(req.Question.Type) != "PTR" { // ignore PTR for console output
 		log.Printf("Got %s request for %s", req.Question.Type, req.Domain)
 	}
 	// Answer only to the requested domain
@@ -51,8 +51,11 @@ func (handler *DNSHandler) ServeDNS(rw fastdns.ResponseWriter, req *fastdns.Mess
 		default:
 			fastdns.Error(rw, req, fastdns.RcodeNXDomain)
 		}
-	} else if fmt.Sprint(req.Question.Type) != "PTR" { // ignore PTR
+	} else if fmt.Sprint(req.Question.Type) != "PTR" { // ignore PTR for console output
 		log.Printf("Requested domain %s not known", string(req.Domain))
+		fastdns.Error(rw, req, fastdns.RcodeNXDomain)
+	} else {
+		fastdns.Error(rw, req, fastdns.RcodeNXDomain)
 	}
 }
 
@@ -66,7 +69,7 @@ func GetIPFromInterface(intfname string) (string, error) {
 	for _, addr := range items { // for all addresses on that interface
 		switch v := addr.(type) {
 		case *net.IPNet: // if address type is IP
-			if !v.IP.IsLoopback() { // if addres is not lookback
+			if !v.IP.IsLoopback() { // if address is not loopback
 				if v.IP.To4() != nil { // if address is IPv4
 					ip = v.IP
 				}
@@ -74,10 +77,10 @@ func GetIPFromInterface(intfname string) (string, error) {
 		}
 	}
 
-	if ip != nil { // if intf has ip
+	if ip != nil { // if interface has ip
 		return ip.String(), nil
 
-	} else { // if int does not have ip
+	} else { // if interface does not have ip
 		return "", fmt.Errorf("interface %s does not exist or does not have an IPv4 address assigned", intfname)
 	}
 }
@@ -125,7 +128,7 @@ func main() {
 
 	// txt records can me a max of 255 chars
 	if len(command) > 255 {
-		log.Printf("Your payload is to big. TXT records can be a max of 255 chars")
+		log.Printf("Your payload is too big. TXT records can be a max of 255 chars")
 		os.Exit(1)
 	}
 
