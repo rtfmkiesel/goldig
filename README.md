@@ -17,6 +17,7 @@ But be aware when accessing this externally, that larger corporations will often
 ## Kudos
 + [Alh4zr3d](https://twitter.com/Alh4zr3d) for the [tweet](https://twitter.com/Alh4zr3d/status/1566489367232651264) that started it this
 + [phuslu](https://github.com/phuslu/) for the [fastdns](https://github.com/phuslu/fastdns) library
++ [I_Am_Jakoby](https://twitter.com/I_Am_Jakoby) for the "> 255 char" [payload](https://twitter.com/I_Am_Jakoby/status/1570770517589917697)
 
 ## Meaning
 + from GO + dig
