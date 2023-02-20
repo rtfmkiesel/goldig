@@ -19,7 +19,7 @@ func banner() {
 ██║   ██║██║   ██║██║     ██║  ██║██║██║   ██║
 ╚██████╔╝╚██████╔╝███████╗██████╔╝██║╚██████╔╝
  ╚═════╝  ╚═════╝ ╚══════╝╚═════╝ ╚═╝ ╚═════╝ `)
-	fmt.Print("                   by https://gitlab.com/lu-ka\n\n")
+	fmt.Print("             by https://gitlab.com/rtfmkiesel\n\n")
 }
 
 func usage() {

@@ -1,13 +1,9 @@
-<div align="center">
-    <img src="https://gitlab.com/lu-ka/goldig/-/raw/main/goldig.png">
-</div>
-
 # goldig
 Execute commands (sneaky) on Windows via DNS TXT records
 
 This small utility will create a DNS server and serve your malicious TXT record. Just copy & paste the command from the console output into your Windows shell. 
 
-<img src="https://gitlab.com/lu-ka/goldig/-/raw/main/run.png">
+![Screenshot](/run.png)
 
 ## why
 This was made for all the people that don't want to buy a domain to test this attack or just want to run this internally.
@@ -25,11 +21,11 @@ But be aware when accessing this externally, that larger corporations will often
 
 ## Installation
 ```bash
-go install gitlab.com/lu-ka/goldig@latest
+go install gitlab.com/rtfmkiesel/goldig@latest
 ```
 ## Build from source
 ```bash
-git clone https://gitlab.com/lu-ka/goldig
+git clone https://gitlab.com/rtfmkiesel/goldig
 cd goldig
 go build
 
@@ -52,7 +48,7 @@ usage: (sudo) ./goldig
 ```
 
 ## License
-This code is released under the [MIT License](https://gitlab.com/lu-ka/goldig/blob/main/LICENSE).
+This code is released under the [MIT License](https://gitlab.com/rtfmkiesel/goldig/blob/main/LICENSE).
 
 ## Legal
 This code is provided for educational use only. If you engage in any illegal activity the author does not take any responsibility for it. By using this code, you agree with these terms.
