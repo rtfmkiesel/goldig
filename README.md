@@ -16,16 +16,16 @@ Options:
 ## Installation
 ```bash
 go install gitlab.com/rtfmkiesel/goldig@latest
-# or
-git clone https://gitlab.com/rtfmkiesel/goldig
-cd goldig
-go install .
 ```
-### Build from source
+
+## Build from source
 ```bash
 git clone https://gitlab.com/rtfmkiesel/goldig
 cd goldig
-go build -ldflags="-s -w"
+# to build binary in the current directory
+go build -ldflags="-s -w" .
+# to build & install binary into GOPATH/bin
+go install .
 ```
 
 ## Why
