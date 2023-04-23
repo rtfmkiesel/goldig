@@ -1,4 +1,4 @@
-module gitlab.com/rtfmkiesel/goldig
+module github.com/rtfmkiesel/goldig
 
 go 1.20
 

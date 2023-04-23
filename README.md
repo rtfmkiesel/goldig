@@ -15,12 +15,12 @@ Options:
 
 ## Installation
 ```bash
-go install gitlab.com/rtfmkiesel/goldig@latest
+go install github.com/rtfmkiesel/goldig@latest
 ```
 
 ## Build from source
 ```bash
-git clone https://gitlab.com/rtfmkiesel/goldig
+git clone https://github.com/rtfmkiesel/goldig
 cd goldig
 # to build binary in the current directory
 go build -ldflags="-s -w" .
